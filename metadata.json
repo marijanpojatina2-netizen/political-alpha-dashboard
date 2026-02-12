@@ -1,0 +1,5 @@
+{
+  "name": "Political Alpha Forensic Dashboard",
+  "description": "Elitna platforma za kvantitativnu analizu i forenzičko istraživanje transakcija američkih dužnosnika. Detektira sukobe interesa, prati 'insider' trendove na Capitol Hillu i generira dnevne newslettere na temelju 'Political Alpha' podataka.",
+  "requestFramePermissions": []
+}
