@@ -78,7 +78,7 @@ const App: React.FC = () => {
             <span className="text-xs text-slate-500 uppercase font-bold">Vercel Cron Status</span>
             <span className="flex items-center gap-2 text-emerald-400 text-[10px] font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              SCHEDULED: 08:00 AM UTC
+              SCHEDULED: 07:00 AM UTC
             </span>
           </div>
           
