@@ -7,6 +7,7 @@ import { NewsletterReport, TradeType } from './types';
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [report, setReport] = useState<NewsletterReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -24,6 +25,25 @@ const App: React.FC = () => {
       setLoading(false);
     }
   }, []);
+
+  const handleTestEmail = async () => {
+    if (!confirm("Želite li generirati i poslati probni newsletter na admin email?")) return;
+    
+    setSendingEmail(true);
+    try {
+      const res = await fetch('/api/newsletter');
+      const data = await res.json();
+      if (data.success) {
+        alert("Newsletter uspješno poslan! Provjerite inbox.");
+      } else {
+        alert("Greška: " + JSON.stringify(data));
+      }
+    } catch (e: any) {
+      alert("Greška pri slanju: " + e.message);
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -61,6 +81,17 @@ const App: React.FC = () => {
               SCHEDULED: 08:00 AM UTC
             </span>
           </div>
+          
+          <button 
+            onClick={handleTestEmail}
+            disabled={sendingEmail}
+            className="hidden md:flex bg-slate-800/50 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 transition-all items-center gap-2 text-xs font-mono disabled:opacity-50"
+            title="Pošalji testni email odmah"
+          >
+            <i className={`fas fa-paper-plane ${sendingEmail ? 'animate-bounce' : ''}`}></i>
+            {sendingEmail ? 'SLANJE...' : 'TEST EMAIL'}
+          </button>
+
           <button 
             onClick={fetchData}
             disabled={loading}
