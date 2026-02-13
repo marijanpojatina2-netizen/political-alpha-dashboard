@@ -11,8 +11,9 @@ export default async function handler(req: any, res: any) {
   const GEMINI_API_KEY = process.env.API_KEY;
   const RESEND_API_KEY = process.env.RESEND_API_KEY; // Potrebno postaviti u Vercelu
   
-  // UNESITE VAŠE EMAIL ADRESE OVDJE
-  const RECIPIENTS = ["marijanpojatina2@gmail.com", "mokowski7@gmail.com"];
+  // BITNO: Na besplatnom Resend računu (bez vlastite domene) možete slati SAMO na svoju email adresu.
+  // Da biste slali drugima, morate kupiti domenu i verificirati je na Resend.com.
+  const RECIPIENTS = ["marijanpojatina2@gmail.com"]; 
 
   if (!RESEND_API_KEY) {
     return res.status(500).json({ error: "Nedostaje RESEND_API_KEY u Environment Variables." });
@@ -47,7 +48,7 @@ export default async function handler(req: any, res: any) {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: 'Political Alpha <newsletter@resend.dev>', // Kasnije možete dodati svoju domenu
+        from: 'Political Alpha <onboarding@resend.dev>', // Koristimo onboarding domenu za testiranje
         to: RECIPIENTS,
         subject: `🚨 Political Alpha Report: ${new Date().toLocaleDateString('hr-HR')}`,
         html: htmlContent,
@@ -63,7 +64,7 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({
       success: true,
       timestamp: new Date().toISOString(),
-      message: "Newsletter uspješno generiran i poslan na 2 adrese.",
+      message: "Newsletter uspješno generiran i poslan (Test Mode).",
       emailId: emailData.id
     });
   } catch (error: any) {
