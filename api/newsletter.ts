@@ -11,8 +11,8 @@ export default async function handler(req: any, res: any) {
   const GEMINI_API_KEY = process.env.API_KEY;
   const RESEND_API_KEY = process.env.RESEND_API_KEY; 
   
-  // BITNO: Na besplatnom Resend računu (bez vlastite domene) možete slati SAMO na svoju email adresu.
-  const RECIPIENTS = ["marijanpojatina2@gmail.com"]; 
+  // Vraćeni originalni primatelji jer je domena verificirana
+  const RECIPIENTS = ["marijanpojatina2@gmail.com", "mokowski7@gmail.com"]; 
 
   if (!RESEND_API_KEY) {
     return res.status(500).json({ error: "Nedostaje RESEND_API_KEY u Environment Variables." });
@@ -27,48 +27,46 @@ export default async function handler(req: any, res: any) {
       contents: `Djeluj kao vrhunski kvantitativni analitičar. Generiraj opširan i detaljan dnevni 'Political Alpha' newsletter na hrvatskom jeziku.
       
       ZADATAK:
-      Generiraj HTML email izvještaj o trgovanju američkih kongresnika. Podaci moraju biti jasno vidljivi, široki i detaljni.
+      Generiraj HTML email izvještaj o trgovanju američkih kongresnika. 
+      
+      BITNO PRAVILO O PODACIMA:
+      Transakcije koje navedeš u "High-Alert" sekciji MORAJU biti navedene i ponovljene u "Detaljnoj tablici". 
+      Tablica mora sadržavati SVE transakcije (High-Alert + ostale manje bitne).
       
       PRAVILA ZA DIZAJN (EMAIL COMPATIBILITY):
-      1. Koristi HTML <table> strukturu za layout (ne divove).
-      2. Glavni container mora biti width="600" (standard za email) ali centriran.
-      3. Pozadina: #0f172a (tamna). Tekst: #e2e8f0 (svijetli).
+      1. Koristi HTML <table> strukturu za layout.
+      2. Glavni container width="600" centriran.
+      3. Pozadina: #0f172a (tamna). Tekst: #e2e8f0.
       4. Svi stilovi MORAJU biti inline (style="...").
       
-      SADRŽAJ I STRUKTURA:
+      STRUKTURA:
 
-      1. ZAGLAVLJE:
-         - Naslov "POLITICAL ALPHA FORENSIC" (Velika slova, Emerald Green #10b981).
-         - Datum izvještaja.
+      1. ZAGLAVLJE: Naslov "POLITICAL ALPHA FORENSIC", Datum.
 
       2. 🚨 HIGH-ALERT ANALIZA (Barem 2 najsumnjivija trejda):
-         - Dizajn: Svaki High-Alert trejd mora biti u svom odvojenom boxu s tamnijom pozadinom (#1e293b) i crvenim obrubom lijevo.
-         - OBAVEZNO PRIKAŽI SLJEDEĆE PODATKE VELIKIM FONTOM:
-           - Ime Političara (npr. Nancy Pelosi) - FONT SIZE 18px, BOLD, BIJELO.
-           - Pozicija (npr. Speaker Emerita).
-           - Ticker Simbol (npr. NVDA) i Tip (BUY/SELL) - jasno istaknuto bojama.
-           - Iznos transakcije.
-           - DETALJNA ANALIZA: 2-3 rečenice zašto je ovo sumnjivo (timing, vijesti, odbor).
+         - Izdvojeno u zasebne boxove s crvenim obrubom.
+         - Velikim slovima ime političara (npr. NANCY PELOSI).
+         - Jasno vidljiv Ticker, Tip (BUY/SELL) i Iznos.
+         - Analiza zašto je sumnjivo.
 
-      3. 📊 DETALJNA TABLICA SVIH TRANSAKCIJA (Jako bitno!):
-         - Tablica mora imati 100% širine.
-         - Zaglavlje tablice mora imati pozadinu #334155.
-         - STUPCI MORAJU BITI:
-           1. POLITIČAR (Ime i stranka) - ovo mora biti najširi stupac.
-           2. ODBOR (Committee) - bitno za kontekst.
-           3. TICKER (Simbol dionice).
-           4. TIP (Kupnja/Prodaja) - Oboji tekst (Zeleno za Buy, Crveno za Sell).
-           5. VRIJEDNOST ($).
-           6. DATUM.
-         - Generiraj barem 5-8 realističnih transakcija u ovoj tablici kako bi izvještaj izgledao bogato. Nemoj skraćivati tablicu.
+      3. 📊 DETALJNA TABLICA SVIH TRANSAKCIJA (Obuhvaća High-Alert + ostalo):
+         - Tablica mora imati width="100%".
+         - Zaglavlje (TH) s tamnijom pozadinom (#1e293b).
+         - STUPCI (Ovaj redoslijed je obavezan):
+           1. POLITIČAR (Ime Prezime, Stranka) - Npr. "Nancy Pelosi (D)".
+           2. ODBOR (Committee) - Npr. "Armed Services".
+           3. TICKER - Npr. "NVDA".
+           4. TIP - (BUY/SELL) obojano (Zeleno/Crveno).
+           5. IZNOS - Npr. "$1M - $5M".
+           6. DATUM - Datum trejda.
+         - U ovoj tablici prikaži barem 8-10 transakcija. Prve dvije neka budu one iste iz High-Alert sekcije, a zatim dodaj ostale (Dan Crenshaw, Ro Khanna, Tommy Tuberville...).
 
-      4. 🔍 FORENZIČKI ZAKLJUČAK:
-         - Kratki tekstualni sažetak o tome koji sektori su danas popularni među političarima (npr. "Vidimo rotaciju iz Tech sektora u Energiju...").
+      4. 🔍 ZAKLJUČAK TRŽIŠTA.
 
       PODACI:
-      Koristi simulirane, ali visoko realistične podatke temeljene na stvarnim poznatim trgovcima (Pelosi, Tuberville, Crenshaw, Marjorie Taylor Greene) ako nemaš pristup live podacima u ovom trenutku. Fokusiraj se na Tech, Defense i Energy sektore.
-
-      Vrati SAMO čisti HTML kod spreman za slanje. Bez markdown oznaka.`,
+      Koristi realistične simulirane podatke za zadnjih 24-48h. Fokus na Tech (NVDA, MSFT), Defense (LMT, RTX) i Energy (XOM).
+      
+      Vrati SAMO čisti HTML kod.`,
       config: {
         tools: [{ googleSearch: {} }],
         thinkingConfig: { thinkingBudget: 32768 }
@@ -85,7 +83,9 @@ export default async function handler(req: any, res: any) {
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
       body: JSON.stringify({
-        from: 'Political Alpha <onboarding@resend.dev>', 
+        // NAPOMENA: Zamijenite 'vasa-verificirana-domena.com' s vašom stvarnom domenom (npr. political-alpha.com)
+        // Ako domena nije ispravna, Resend će vratiti 403 grešku.
+        from: 'Political Alpha <newsletter@vasa-verificirana-domena.com>', 
         to: RECIPIENTS,
         subject: `🚨 Political Alpha: Detaljni Forenzički Izvještaj (${new Date().toLocaleDateString('hr-HR')})`,
         html: htmlContent,
@@ -101,7 +101,7 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({
       success: true,
       timestamp: new Date().toISOString(),
-      message: "Newsletter uspješno generiran i poslan (Test Mode).",
+      message: "Newsletter uspješno generiran i poslan.",
       emailId: emailData.id
     });
   } catch (error: any) {
