@@ -3,7 +3,13 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { TradeType } from "../types";
 
 export const generatePoliticalAlphaReport = async () => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY;
+
+  if (!apiKey) {
+    throw new Error("Nedostaje API_KEY! Provjeri .env datoteku ili postavke projekta.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
     Djeluj kao vrhunski kvantitativni analitičar i forenzički istražitelj financijskih tržišta.

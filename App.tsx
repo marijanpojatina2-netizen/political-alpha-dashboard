@@ -8,6 +8,7 @@ import { NewsletterReport, TradeType } from './types';
 const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
   const [report, setReport] = useState<NewsletterReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -19,8 +20,9 @@ const App: React.FC = () => {
     try {
       const data = await generatePoliticalAlphaReport();
       setReport(data);
-    } catch (err) {
-      setError("Neuspjelo dohvaćanje podataka. Provjerite mrežnu vezu.");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Neuspjelo dohvaćanje podataka. Provjerite API ključ i mrežnu vezu.");
     } finally {
       setLoading(false);
     }
@@ -32,6 +34,13 @@ const App: React.FC = () => {
     setSendingEmail(true);
     try {
       const res = await fetch('/api/newsletter');
+      
+      // Provjera da li je odgovor JSON (lokalni Vite server vraća HTML za nepostojeće rute)
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("API ruta nije dostupna. (Koristite 'vercel dev' za testiranje backend funkcija)");
+      }
+
       const data = await res.json();
       if (data.success) {
         alert("Newsletter uspješno poslan! Provjerite inbox.");
@@ -51,12 +60,77 @@ const App: React.FC = () => {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    // Simulacija prijave (UI feedback samo)
+    setSubscribing(true);
+    
+    // Čekamo malo da izgleda kao da se nešto događa
+    setTimeout(() => {
+      console.log(`Korisnik je zatražio pretplatu: ${email}. Dodaj ga ručno u api/newsletter.ts ako želiš.`);
       setSubscribed(true);
-      setTimeout(() => setSubscribed(false), 5000);
       setEmail('');
-    }
+      setSubscribing(false);
+      
+      // Resetiraj poruku nakon 5 sekundi
+      setTimeout(() => setSubscribed(false), 5000);
+    }, 1000);
   };
+
+  // --- RENDER: SETUP SCREEN FOR MISSING API KEY ---
+  if (error && error.includes("Nedostaje API_KEY")) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-6 font-sans text-slate-200">
+        <div className="max-w-2xl w-full glass-card border border-rose-500/30 rounded-2xl p-8 shadow-[0_0_50px_rgba(244,63,94,0.1)]">
+          <div className="flex items-center gap-4 mb-6 border-b border-slate-700 pb-6">
+            <div className="bg-rose-500/10 p-3 rounded-full border border-rose-500/20">
+              <i className="fas fa-key text-rose-500 text-2xl"></i>
+            </div>
+            <div>
+              <h1 className="text-2xl font-black uppercase tracking-tight text-white">Potrebna Konfiguracija</h1>
+              <p className="text-rose-400 font-mono text-sm">Nedostaje API Ključ</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <p className="text-slate-400 leading-relaxed">
+              Aplikacija nije pronašla <span className="text-emerald-400 font-mono font-bold">API_KEY</span>. 
+              Kako biste pokrenuli forenzičku analizu, morate konfigurirati lokalno okruženje.
+            </p>
+
+            <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Korak 1: Kreirajte .env datoteku</h3>
+              <p className="text-sm text-slate-400 mb-2">U root folderu projekta kreirajte novu datoteku naziva <code className="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">.env</code> i zalijepite sljedeći sadržaj:</p>
+              
+              <div className="relative group mt-4">
+                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative bg-black/50 ring-1 ring-white/10 rounded-lg p-4 font-mono text-sm text-emerald-400 overflow-x-auto">
+                  API_KEY=AIzaSy...<span className="text-slate-600 comment"># Vaš Gemini API ključ</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <a 
+                href="https://aistudio.google.com/app/apikey" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3 px-4 rounded-xl text-center transition-all border border-slate-700 text-sm flex items-center justify-center gap-2"
+              >
+                <i className="fas fa-external-link-alt text-xs"></i> Nabavi API Ključ
+              </a>
+              <button 
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase py-3 px-4 rounded-xl text-center transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] text-sm"
+              >
+                Osvježi Aplikaciju
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-20 selection:bg-emerald-500/30">
@@ -106,6 +180,16 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-6 mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 space-y-8">
+            {error && (
+              <div className="bg-rose-500/10 border border-rose-500 text-rose-400 p-4 rounded-xl flex items-start gap-3 animate-pulse">
+                <i className="fas fa-exclamation-triangle text-xl mt-0.5"></i>
+                <div>
+                  <h3 className="font-bold text-sm uppercase mb-1">Greška sustava</h3>
+                  <p className="text-xs text-rose-300/80 font-mono">{error}</p>
+                </div>
+              </div>
+            )}
+
             {loading && !report ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] glass-card rounded-2xl">
                 <div className="w-12 h-12 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
@@ -206,9 +290,10 @@ const App: React.FC = () => {
               </p>
               
               {subscribed ? (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl text-center">
+                <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl text-center animate-pulse">
                   <i className="fas fa-check-circle text-emerald-400 text-2xl mb-2"></i>
-                  <p className="text-emerald-400 font-bold text-sm uppercase">Pretplaćeni ste!</p>
+                  <p className="text-emerald-400 font-bold text-sm uppercase">Zahtjev Poslan!</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Admin će vas odobriti uskoro.</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="space-y-3">
@@ -218,13 +303,21 @@ const App: React.FC = () => {
                     placeholder="vas@email.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-slate-200"
+                    disabled={subscribing}
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-slate-200 disabled:opacity-50"
                   />
                   <button 
                     type="submit"
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] text-sm italic active:scale-95"
+                    disabled={subscribing}
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] text-sm italic active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Aktiviraj Alpha Signale
+                    {subscribing ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <i className="fas fa-spinner animate-spin"></i> OBRADA...
+                      </span>
+                    ) : (
+                      "Aktiviraj Alpha Signale"
+                    )}
                   </button>
                 </form>
               )}
