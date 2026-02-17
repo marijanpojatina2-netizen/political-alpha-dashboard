@@ -19,9 +19,10 @@ export default async function handler(req: any, res: any) {
   const RECIPIENTS = [
     "marijanpojatina2@gmail.com",
     "mokowski7@gmail.com",
-    "email3@primjer.com", // Ovdje stavi treći mail
-    "email4@primjer.com"  // Ovdje stavi četvrti mail
-  ];
+    "vedran.lucic@kkdinamo.hr", // Ovdje stavi treći mail
+    "g.kova19@gmail.com"  // Ovdje stavi četvrti mail
+    "kresimir.mlinaric@gnkdinamo.hr"
+    ];
   */
 
   const SENDER_EMAIL = 'newsletter@kkdinamo.hr'; 
