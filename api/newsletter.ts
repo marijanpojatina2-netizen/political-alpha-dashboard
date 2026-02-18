@@ -12,18 +12,16 @@ export default async function handler(req: any, res: any) {
   // --- KONFIGURACIJA PRIMATELJA ---
   
   // 1. TEST MODE (Samo ti):
-  const RECIPIENTS = ["marijanpojatina2@gmail.com"];
+  // const RECIPIENTS = ["marijanpojatina2@gmail.com"];
   
   // 2. PRODUKCIJA (Kad kažeš "kreni", zamijeni RECIPIENTS s ovim dolje):
-  /*
   const RECIPIENTS = [
     "marijanpojatina2@gmail.com",
     "mokowski7@gmail.com",
-    "vedran.lucic@kkdinamo.hr", // Ovdje stavi treći mail
-    "g.kova19@gmail.com"  // Ovdje stavi četvrti mail
+    "vedran.lucic@kkdinamo.hr",
+    "g.kova19@gmail.com",
     "kresimir.mlinaric@gnkdinamo.hr"
     ];
-  */
 
   const SENDER_EMAIL = 'newsletter@kkdinamo.hr'; 
 
